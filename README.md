@@ -24,64 +24,85 @@ Program to implement the multivariate linear regression model for predicting the
 Developed by: Balasuriya M
 RegisterNumber: 212224240021
 */
-
-import numpy as np
-
+```
+```python
 from sklearn.datasets import fetch_california_housing
-
-from sklearn.linear_model import SGDRegressor
-
-from sklearn.multioutput import MultiOutputRegressor
-
+import pandas as pd
 from sklearn.model_selection import train_test_split
-
-from sklearn.metrics import mean_squared_error
-
 from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import SGDRegressor
+from sklearn.multioutput import MultiOutputRegressor
+from sklearn.metrics import mean_squared_error
+```
 
-data = fetch_california_housing()
+```python
+data = pd.DataFrame(  fetch_california_housing().data,                        
+                      columns=fetch_california_housing().feature_names,
+)
+data.head()
+```
 
-x= data.data[:,:3]
+```python
+data['Housing_price']= fetch_california_housing().target
+data.head()
+```
 
-y=np.column_stack((data.target,data.data[:,6]))
+```python
+x = data.drop(columns=["AveOccup", "Housing_price"])
+y = data[["AveOccup", "Housing_price"]]
 
-x_train, x_test, y_train,y_test = train_test_split(x,y, test_size = 0.2, random_state =42)
+print("Input Features \n\n",x)
+print("\nPredicting Features\n\n",y)
+```
 
-scaler_x = StandardScaler()
-
-scaler_y = StandardScaler()
-
-x_train = scaler_x.fit_transform(x_train)
-
-x_test = scaler_x.fit_transform(x_test)
-
-y_train = scaler_y.fit_transform(y_train)
-
-y_test = scaler_y.fit_transform(y_test)
-
-sgd = SGDRegressor(max_iter=1000, tol = 1e-3)
-
-multi_output_sgd= MultiOutputRegressor(sgd)
-
-multi_output_sgd.fit(x_train, y_train)
-
-y_pred =multi_output_sgd.predict(x_test)
-
-y_pred = scaler_y.inverse_transform(y_pred)
-
-y_test = scaler_y.inverse_transform(y_test)
-print(y_pred)
-
-mse = mean_squared_error(y_test,y_pred)
-
-print("Mean Squared Error:",mse)
-
-print("\nPredictions:\n",y_pred[:5])
+```python
+x_train, x_test, y_tain, y_test = train_test_split( 
+                                                    x,
+                                                    y,
+                                                    test_size = 0.2,     
+                                                    random_state = 42,
+                                                  )
 
 ```
 
+```python
+scaler = StandardScaler()
+x_train_scaled = scaler.fit_transform(x_train)
+x_test_scaled = scaler.transform(x_test)
+```
+
+```python
+model = SGDRegressor(max_iter=1000, tol=1e-3, random_state=42)
+
+multi_output_model = MultiOutputRegressor(model)
+multi_output_model.fit(x_train_scaled, y_tain)
+```
+
+```python
+y_predict = multi_output_model.predict(x_test_scaled)
+y_predict
+```
+
+```python
+mse = mean_squared_error(y_test, y_predict, multioutput='raw_values')
+print(f"Mean Squared Error for Median House Value: {mse[0]:.4f}")
+print(f"Mean Squared Error for Average Occupants: {mse[1]:.4f}")
+```
+
 ## Output:
-![Screenshot 2025-04-19 225041](https://github.com/user-attachments/assets/7d209e68-df36-4130-ab1f-47d579b53af4)
+
+![image](https://github.com/user-attachments/assets/c84655d4-3ad6-4c10-9efe-a66b6c572f2c)
+
+![image](https://github.com/user-attachments/assets/5744c211-ac9d-4b46-9b27-54e3eff9416a)
+
+![image](https://github.com/user-attachments/assets/1677c9f1-f500-451a-a9eb-50f40482e504)
+
+![image](https://github.com/user-attachments/assets/48afc62e-93ef-4d58-921c-99de6be0fd58)
+
+![image](https://github.com/user-attachments/assets/1ce3f3c1-4075-4149-92f5-92cb659f082c)
+
+![image](https://github.com/user-attachments/assets/5ab4a7b5-7e95-47c2-804c-dbc36837f083)
+
 
 
 
